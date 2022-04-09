@@ -10,19 +10,6 @@ NODE_BORDER_COLOR = colorDictionary['BLACK']
 pygame.display.set_caption(APP_TITLE)
 
 class Grid():
-    # Default Constructor
-    def __init__(self):
-        self.grid = []
-        self.surface = pygame.display.set_mode((0,0))
-        
-        self.screenWidth = 0
-        self.screenHeight = 0
-
-        self.gridWidth = 0
-        self.gridHeight = 0
-
-        self.gap = 0
-
     # Constructor specifying window size and grid size (rows and columns)
     def __init__(self, winSize, gridSize):
         self.grid = []
