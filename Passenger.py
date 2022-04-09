@@ -1,2 +1,3 @@
 class Passenger(object):
-    pass
+    def __init__(self):
+        self.assignedDriver = None

@@ -1,13 +1,17 @@
-import pygame
+import pygame, math, random, copy
 from Color import colorDictionary
 from Node import Node
-import math
+from Driver import Driver
+from PathFinding import findPathAStar
 
 # Initialize Constants
 APP_TITLE = "Transportation/Touring Service"
+
 SURFACE_BACKGROUND = colorDictionary['WHITE']
-NODE_BORDER_COLOR = colorDictionary['BLACK']
+NODE_DEFAULT_COLOR = colorDictionary['BLACK']
+WALL_COLOR = colorDictionary['BLACK']
 PASSENGER_COLOR = colorDictionary['YELLOW']
+DRIVER_COLOR = colorDictionary['RED']
 
 pygame.display.set_caption(APP_TITLE)
 
@@ -26,16 +30,40 @@ class Grid():
         self.gap = winSize / gridSize
 
         self.newlyAddedNode = None
+        self.drivers = []
 
     # Initialize grid with empty nodes
     def createGrid(self):
         for i in range(self.gridHeight):
             newRow = []
             for j in range(self.gridWidth):
-                newNode = Node(i * self.gap, j * self.gap, self.gap, self.gap, False, False, NODE_BORDER_COLOR)
+                newNode = Node(i * self.gap, j * self.gap, self.gap, False, False, NODE_DEFAULT_COLOR)
                 newRow.append(newNode)
             self.grid.append(newRow)
 
+    # Initialize grid from file
+    def importGrid(self, file):
+        pass
+    
+    def addDrivers(self, n):
+        for i in range(n):
+            selectedNode = self.getRandomTraversableNode()
+
+            selectedNode.setSpecial(True)
+            selectedNode.setColor(DRIVER_COLOR)
+
+            newDriver = Driver(selectedNode.getGridPos())
+
+            self.drivers.append(newDriver)
+    
+    def getRandomTraversableNode(self):        
+        while True:
+            randomRow = random.randint(0, self.gridWidth-1)
+            randomColumn = random.randint(0, self.gridHeight-1)
+            selectedNode = self.getNode(randomRow, randomColumn)
+            if not selectedNode.getWall():
+                return selectedNode
+    
     # Draw the grid with pygames
     def drawGrid(self):
         self.surface.fill(SURFACE_BACKGROUND)
@@ -63,21 +91,47 @@ class Grid():
         if pygame.mouse.get_pressed()[0]:
             mousePosX, mousePosY = pygame.mouse.get_pos()
             selectedNode = self.getMousePosNode(mousePosX, mousePosY)
-            selectedNode.setColor(PASSENGER_COLOR)
-            selectedNode.setSpecial(True)
-            self.newlyAddedNode = selectedNode
+            selectedNode.makeWall()
         # If right mouse button was pressed
         elif pygame.mouse.get_pressed()[2]:
-            if self.newlyAddedNode is not None:
-                mousePosX, mousePosY = pygame.mouse.get_pos()
-                selectedNode = self.getMousePosNode(mousePosX, mousePosY)
+            pass
     
     def handleButtonPressedEvent(self, event):
+        # If user pressed a button
         if event.type == pygame.KEYDOWN:
+            # If user pressed D key, reset node
             if event.key == pygame.K_d:
                 mousePosX, mousePosY = pygame.mouse.get_pos()
                 selectedNode = self.getMousePosNode(mousePosX, mousePosY)
                 selectedNode.resetNode()
+    
+    def handleDrivers(self):
+        for driver in self.drivers:
+            
+            # If drivers have a path, move to next path
+            if len(driver.getPathLength()) > 0:
+                currentPos = driver.getPos()
+                nextPos = driver.getNextPath()
+
+                currentNode = self.getNode(currentPos[0], currentPos[1])
+                nextNode = self.getNode(nextPos[0], nextPos[1])
+
+                currentNode.removeOccupant(driver)
+                currentNode.setSpecial(False)
+                currentNode.setColor(NODE_DEFAULT_COLOR)
+
+                nextNode.addOccupant(driver)
+                nextNode.setSpecial(True)
+                nextNode.setColor(DRIVER_COLOR)
+
+            # If drivers have no path, create a random path
+            else:
+                destination = self.getRandomTraversableNode()
+                path = findPathAStar(copy.deepcopy(self.grid), driver.getPos(), destination.getGridPos())
+                driver.setPath(path)
+    
+    def handlePassengers(self):
+        pass
 
     def getMousePosNode(self, mousePosX, mousePosY):
         x = math.floor(mousePosX / self.gap)
