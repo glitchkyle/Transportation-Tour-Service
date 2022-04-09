@@ -24,4 +24,5 @@ class Node(object):
         pass
 
     def resetNode(self):
-        pass
+        self.color = colorDictionary['WHITE']
+        self.occupants = []
