@@ -4,7 +4,7 @@ from Grid import Grid
 
 # Intialize Constants
 SCREEN_SIZE = 800
-GRID_SIZE = 40
+GRID_SIZE = 60
 
 def test():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
@@ -21,8 +21,8 @@ def main():
     while True:
         for event in myGrid.getGridEvent():
             myGrid.handleMousePressedEvent()
+            myGrid.handleButtonPressedEvent(event)
             myGrid.drawGrid()
-
 
 if __name__ == "__main__":
     main()

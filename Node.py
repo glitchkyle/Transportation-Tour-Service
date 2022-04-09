@@ -2,7 +2,7 @@ from Color import colorDictionary
 
 class Node(object):
     # Constructor specifying Rect parameters and color
-    def __init__(self, xpos, ypos, width, height, color):
+    def __init__(self, xpos, ypos, width, height, wall, special, color):
         self.x = xpos
         self.y = ypos
 
@@ -10,6 +10,8 @@ class Node(object):
         self.nodeHeight = height
         
         self.color = color
+        self.wall = wall
+        self.special = special
 
         self.occupants = []
 
@@ -20,9 +22,23 @@ class Node(object):
     def getColor(self):
         return self.color
     
-    def changeColor(self):
-        pass
+    def setColor(self, color):
+        self.color = color
+
+    def getWall(self):
+        return self.wall
+    
+    def setWall(self, state):
+        self.wall = state
+
+    def getSpecial(self):
+        return self.special
+    
+    def setSpecial(self, state):
+        self.special = state
 
     def resetNode(self):
-        self.color = colorDictionary['WHITE']
+        self.color = colorDictionary['BLACK']
+        self.wall = False
+        self.special = False
         self.occupants = []
