@@ -5,6 +5,9 @@ class Driver(object):
     
     def getPos(self):
         return self.currentPos
+    
+    def setPos(self, newPos):
+        self.currentPos = newPos
 
     def getPathLength(self):
         return len(self.pathQueue)

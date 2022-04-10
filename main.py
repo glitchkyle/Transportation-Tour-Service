@@ -5,19 +5,24 @@ from Grid import Grid
 SCREEN_SIZE = 800
 GRID_SIZE = 60
 
+SCREEN_SIZE = 800
+GRID_SIZE = 10
+
 def test():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
-    
     myGrid.createGrid()
-    myGrid.drawGrid()
+    #myGrid.importGrid
+    myGrid.addDrivers(1)
 
-    time.sleep(5)
+    # Handle all drivers
+    myGrid.handleDrivers()
+
 
 def main():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
     myGrid.createGrid()
     #myGrid.importGrid
-    myGrid.addDrivers(5)
+    myGrid.addDrivers(1)
 
     while True:
         for event in myGrid.getGridEvent():
@@ -29,10 +34,10 @@ def main():
             # Handle all passengers
             #myGrid.handlePassengers()
 
-            # Handle all drivers
-            #myGrid.handleDrivers()
+        # Handle all drivers
+        myGrid.handleDrivers()
 
-            myGrid.drawGrid()
+        myGrid.drawGrid()
 
 if __name__ == "__main__":
     main()

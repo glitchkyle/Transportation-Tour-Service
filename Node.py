@@ -14,9 +14,9 @@ class Node(object):
         self.wall = wall
         self.special = special
 
-        self.f = math.inf
         self.g = math.inf
         self.h = math.inf
+        self.parent = None
 
         self.occupants = []
 
@@ -58,6 +58,24 @@ class Node(object):
     def removeOccupant(self, occupant):
         if occupant in self.occupants:
             self.occupants.remove(occupant)
+
+    def getFCost(self):
+        return self.g + self.h
+
+    def getGCost(self):
+        return self.g
+
+    def setGCost(self, cost):
+        self.g = cost
+    
+    def setHCost(self, cost):
+        self.h = cost
+
+    def getParentNode(self):
+        return self.parent
+
+    def setParentNode(self, node):
+        self.parent = node
 
     def resetNode(self):
         self.color = colorDictionary['BLACK']

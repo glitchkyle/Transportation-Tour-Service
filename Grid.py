@@ -1,4 +1,4 @@
-import pygame, math, random, copy
+import pygame, math, random, copy, time
 from Color import colorDictionary
 from Node import Node
 from Driver import Driver
@@ -29,7 +29,7 @@ class Grid():
 
         self.gap = winSize / gridSize
 
-        self.newlyAddedNode = None
+        self.selectedNode = None
         self.drivers = []
 
     # Initialize grid with empty nodes
@@ -109,26 +109,31 @@ class Grid():
         for driver in self.drivers:
             
             # If drivers have a path, move to next path
-            if len(driver.getPathLength()) > 0:
+            if driver.getPathLength() > 0:
                 currentPos = driver.getPos()
                 nextPos = driver.getNextPath()
 
                 currentNode = self.getNode(currentPos[0], currentPos[1])
                 nextNode = self.getNode(nextPos[0], nextPos[1])
 
-                currentNode.removeOccupant(driver)
-                currentNode.setSpecial(False)
-                currentNode.setColor(NODE_DEFAULT_COLOR)
+                if not nextNode.getWall():
 
-                nextNode.addOccupant(driver)
-                nextNode.setSpecial(True)
-                nextNode.setColor(DRIVER_COLOR)
+                    currentNode.removeOccupant(driver)
+                    currentNode.setSpecial(False)
+                    currentNode.setColor(NODE_DEFAULT_COLOR)
+
+                    driver.setPos(nextPos)
+                    nextNode.addOccupant(driver)
+                    nextNode.setSpecial(True)
+                    nextNode.setColor(DRIVER_COLOR)
 
             # If drivers have no path, create a random path
             else:
                 destination = self.getRandomTraversableNode()
-                path = findPathAStar(copy.deepcopy(self.grid), driver.getPos(), destination.getGridPos())
+                path = findPathAStar(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, driver.getPos(), destination.getGridPos())
                 driver.setPath(path)
+            
+            time.sleep(0.5)
     
     def handlePassengers(self):
         pass
@@ -142,5 +147,5 @@ class Grid():
         return pygame.mouse.get_pos()
 
     def getNode(self, row, column):
-        if (row <= self.gridHeight - 1 and row >= 0) and (column <= self.gridWidth - 1 and column >= 0): 
+        if (row < self.gridHeight and row >= 0) and (column < self.gridWidth and column >= 0): 
             return self.grid[row][column]
