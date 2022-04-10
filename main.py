@@ -6,7 +6,7 @@ SCREEN_SIZE = 800
 GRID_SIZE = 60
 
 SCREEN_SIZE = 800
-GRID_SIZE = 10
+GRID_SIZE = 60
 
 def test():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
@@ -22,7 +22,7 @@ def main():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
     myGrid.createGrid()
     #myGrid.importGrid
-    myGrid.addDrivers(1)
+    myGrid.addDrivers(3)
 
     while True:
         for event in myGrid.getGridEvent():

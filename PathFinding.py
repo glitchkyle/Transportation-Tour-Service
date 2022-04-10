@@ -74,16 +74,19 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
 
             node.setParentNode(currentSearchNode)
 
-            for openNode in openList:
-                if node == openNode and node.getGCost() > node.getGCost():
-                    continue
+            # for openNode in openList:
+            #     if node.getGridPos() == openNode.getGridPos() and node.getGCost() > openNode.getGCost():
+            #         continue
+
+            if node in openList:
+                continue
 
             openList.append(node)
 
             # print(f"Node is at: {node.getGridPos()}. Node costs {node.getFCost()}")
         
         # Sort open list to make cheapest node on top
-        # heapifySort(openList)
+        heapifySort(openList)
 
     return finalPath
 
