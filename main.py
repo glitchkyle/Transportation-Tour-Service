@@ -1,12 +1,9 @@
-import time
 from Grid import Grid
 
 # Intialize Constants
 SCREEN_SIZE = 800
-GRID_SIZE = 60
-
-SCREEN_SIZE = 800
-GRID_SIZE = 60
+GRID_SIZE = 30
+MAX_DRIVERS = 3
 
 def test():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
@@ -21,8 +18,7 @@ def test():
 def main():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
     myGrid.createGrid()
-    #myGrid.importGrid
-    myGrid.addDrivers(3)
+    myGrid.addDrivers(MAX_DRIVERS)
 
     while True:
         for event in myGrid.getGridEvent():
@@ -31,8 +27,8 @@ def main():
             myGrid.handleMousePressedEvent()
             myGrid.handleButtonPressedEvent(event)
 
-            # Handle all passengers
-            #myGrid.handlePassengers()
+        # Handle all passengers
+        myGrid.handlePassengers()
 
         # Handle all drivers
         myGrid.handleDrivers()

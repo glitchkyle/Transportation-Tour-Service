@@ -45,6 +45,7 @@ class Grid():
     def importGrid(self, file):
         pass
     
+    # Initialize n drivers in grid
     def addDrivers(self, n):
         for i in range(n):
             selectedNode = self.getRandomTraversableNode()
@@ -56,6 +57,7 @@ class Grid():
 
             self.drivers.append(newDriver)
     
+    # Get a random traversable node from grid
     def getRandomTraversableNode(self):        
         while True:
             randomRow = random.randint(0, self.gridWidth-1)
@@ -75,22 +77,13 @@ class Grid():
                     pygame.draw.rect(self.surface, node.color, node.getRect(), 1)
         pygame.display.update()
 
-    def resetGrid(self):
-        for row in self.grid:
-            for node in row:
-                node.resetNode()
-    
-    def deleteGrid(self):
-        pygame.quit()
-
     def getGridEvent(self):
         return pygame.event.get()
 
     def handleMousePressedEvent(self):
         # If left mouse button was pressed
         if pygame.mouse.get_pressed()[0]:
-            mousePosX, mousePosY = pygame.mouse.get_pos()
-            selectedNode = self.getMousePosNode(mousePosX, mousePosY)
+            selectedNode = self.getMousePosNode()
             selectedNode.makeWall()
         # If right mouse button was pressed
         elif pygame.mouse.get_pressed()[2]:
@@ -101,8 +94,7 @@ class Grid():
         if event.type == pygame.KEYDOWN:
             # If user pressed D key, reset node
             if event.key == pygame.K_d:
-                mousePosX, mousePosY = pygame.mouse.get_pos()
-                selectedNode = self.getMousePosNode(mousePosX, mousePosY)
+                selectedNode = self.getMousePosNode()
                 selectedNode.resetNode()
     
     def handleDrivers(self):
@@ -133,19 +125,23 @@ class Grid():
                 path = findPathAStar(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, driver.getPos(), destination.getGridPos())
                 driver.setPath(path)
             
-            time.sleep(0.5)
+            time.sleep(0.25)
     
     def handlePassengers(self):
         pass
-
-    def getMousePosNode(self, mousePosX, mousePosY):
+    
+    # Get node from mouse position
+    def getMousePosNode(self):
+        mousePosX, mousePosY = self.getMousePos()
         x = math.floor(mousePosX / self.gap)
         y = math.floor(mousePosY / self.gap)
         return self.getNode(x, y)
 
+    # Get current mouse position
     def getMousePos(self):
         return pygame.mouse.get_pos()
 
+    # Get node using row and column as indices
     def getNode(self, row, column):
         if (row < self.gridHeight and row >= 0) and (column < self.gridWidth and column >= 0): 
             return self.grid[row][column]
