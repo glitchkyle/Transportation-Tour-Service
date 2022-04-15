@@ -1,18 +1,18 @@
+from os import stat
 from Color import colorDictionary
 import math
 
 class Node(object):    
     # Constructor specifying Rect parameters and color
-    def __init__(self, xpos, ypos, size, wall, special, color):
+    def __init__(self, xpos, ypos, size, wall):
         self.x = xpos
         self.y = ypos
 
         self.nodeWidth = size
         self.nodeHeight = size
         
-        self.color = color
         self.wall = wall
-        self.special = special
+        self.debug = False
 
         self.g = math.inf
         self.h = math.inf
@@ -26,12 +26,6 @@ class Node(object):
     
     def getGridPos(self):
         return (math.floor(self.x / self.nodeWidth), math.floor(self.y / self.nodeHeight))
-        
-    def getColor(self):
-        return self.color
-    
-    def setColor(self, color):
-        self.color = color
 
     def getWall(self):
         return self.wall
@@ -42,13 +36,13 @@ class Node(object):
     def makeWall(self):
         self.wall = True
         self.color = colorDictionary['BLACK']
+    
+    def getDebug(self):
+        return self.debug
 
-    def getSpecial(self):
-        return self.special
-    
-    def setSpecial(self, state):
-        self.special = state
-    
+    def setDebug(self, status):
+        self.debug = status
+
     def getOccupants(self):
         return self.occupants
 
