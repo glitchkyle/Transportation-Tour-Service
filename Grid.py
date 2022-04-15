@@ -1,4 +1,5 @@
 import pygame, math, random, copy, time
+from os.path import exists
 from Color import colorDictionary
 from Node import Node
 from Driver import Driver
@@ -41,9 +42,18 @@ class Grid():
                 newRow.append(newNode)
             self.grid.append(newRow)
 
-    # Initialize grid from file
+    # Initialize grid from file containing blocked nodes and filled nodes
     def importGrid(self, file):
-        pass
+        if exists(file):
+            with open(file, 'r') as importFile:
+                for line in importFile:
+                    position = line.strip().split(" ")
+                    position[0], position[1] = int(position[0]), int(position[1])
+                    node = self.getNode(position[0], position[1])
+                    if node is not None:
+                        node.makeWall()
+        else:
+            raise Exception("Given file does not exist")
     
     # Initialize n drivers in grid
     def addDrivers(self, n):
