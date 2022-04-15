@@ -139,7 +139,7 @@ class Grid():
     def handleDrivers(self):
         for driver in self.drivers:
             # Assign passenger if driver has no passenger
-            if len(self.passengers) > 0:
+            if len(self.passengers) > 0 and driver.getPassenger() is None:
                 currentPassenger = self.passengers[0]
                 driver.setPassenger(currentPassenger)
                 self.passengers.remove(currentPassenger)
