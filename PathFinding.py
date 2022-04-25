@@ -1,5 +1,5 @@
 def findPathAStar(gridArr, height, width, startPos, endPos):
-    print(f" Finding Path from {startPos} to {endPos}")
+    #print(f" Finding Path from {startPos} to {endPos}")
 
     finalPath = []
     openList = []
@@ -26,7 +26,7 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
 
         # If path found, trace back to start node
         if currentSearchNode.getGridPos() == endPos:
-            print("Path Found!")
+            #print("Path Found!")
             while currentSearchNode != startNode:
                 finalPath.append(currentSearchNode.getGridPos())
                 currentSearchNode = currentSearchNode.getParentNode()
@@ -78,7 +78,9 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
             #     if node.getGridPos() == openNode.getGridPos() and node.getGCost() > openNode.getGCost():
             #         continue
 
+            # Check if node is in openlist and re-evaluate cost 
             if node in openList:
+                node.setGCost(currentGCost + 10)
                 continue
 
             openList.append(node)

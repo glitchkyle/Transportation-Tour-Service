@@ -1,37 +1,23 @@
 from Grid import Grid
 
 # Intialize Constants
-SCREEN_SIZE = 800
+
+SCREEN_SIZE = 1000
 GRID_SIZE = 20
-MAX_DRIVERS = 3
-MAX_RANDOM_PASSENGERS = 3
-MAX_DESTINATIONS = 3
 IMPORT_GRID = "testGrid.txt"
 
+MAX_DRIVERS = 3                         # Maximum drivers within the grid at a time
+STARTING_RANDOM_PASSENGERS = 3          # Starting passengers in grid
+
 def test():
-    myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
-    myGrid.createGrid()
-    myGrid.importGrid(IMPORT_GRID)
-    myGrid.addDrivers(MAX_DRIVERS)
-    myGrid.addRandomPassengers(MAX_RANDOM_PASSENGERS, MAX_DESTINATIONS)
-
-    while True:
-        for event in myGrid.getGridEvent():
-
-            # Handle all key and click events
-            myGrid.handleMousePressedEvent()
-            myGrid.handleButtonPressedEvent(event)
-
-        # Handle all drivers
-        myGrid.handleDrivers()
-
-        myGrid.drawGrid()
-
+    pass
 
 def main():
     myGrid = Grid(SCREEN_SIZE, GRID_SIZE)
     myGrid.createGrid()
+    myGrid.importGrid(IMPORT_GRID)
     myGrid.addDrivers(MAX_DRIVERS)
+    myGrid.addPassengers(STARTING_RANDOM_PASSENGERS)
 
     while True:
         for event in myGrid.getGridEvent():
@@ -40,7 +26,7 @@ def main():
             myGrid.handleMousePressedEvent()
             myGrid.handleButtonPressedEvent(event)
 
-        # Handle all passengers
+        # Handle passengers
         myGrid.handlePassengers()
 
         # Handle all drivers
@@ -49,4 +35,4 @@ def main():
         myGrid.drawGrid()
 
 if __name__ == "__main__":
-    test()
+    main()

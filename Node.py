@@ -1,6 +1,7 @@
-from os import stat
 from Color import colorDictionary
 import math
+from Driver import Driver
+from Passenger import Passenger
 
 class Node(object):    
     # Constructor specifying Rect parameters and color
@@ -45,6 +46,17 @@ class Node(object):
 
     def getOccupants(self):
         return self.occupants
+
+    def getDriver(self):
+        for occupant in self.occupants:
+            if isinstance(occupant, Driver):
+                return occupant
+    
+    def containsDrivers(self):
+        return any(isinstance(driver, Driver) for driver in self.getOccupants())
+
+    def containsPassengers(self):
+        return any(isinstance(passenger, Passenger) for passenger in self.getOccupants())
 
     def addOccupant(self, occupant):
         self.occupants.append(occupant)

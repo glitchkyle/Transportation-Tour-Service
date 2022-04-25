@@ -7,7 +7,13 @@ from Passenger import Passenger
 from PathFinding import findPathAStar
 
 # Initialize Constants
+
 APP_TITLE = "Transportation/Touring Service"
+
+DRIVER_SPEED = 0.1                  # Speed of Drivers
+MAX_PASSENGERS = 7                  # Maximum possible passengers within the grid at a time
+PASSENGER_SPAWN_RATE = 5            # Chances of a passenger spawning at a given moment
+MAX_PASSENGER_DESTINATIONS = 3      # Maximum possible destinations passengers can have
 
 SURFACE_BACKGROUND = colorDictionary['WHITE']
 NODE_DEFAULT_COLOR = colorDictionary['BLACK']
@@ -15,6 +21,8 @@ WALL_COLOR = colorDictionary['BLACK']
 PASSENGER_COLOR = colorDictionary['YELLOW']
 DRIVER_COLOR = colorDictionary['RED']
 DEBUG_COLOR = colorDictionary['BLUE']
+DRIVER_HIGHLIGHTED_COLOR = colorDictionary['ORANGE']
+DESTINATION_HIGHLIGHTED_COLOR = colorDictionary['GREEN']
 
 pygame.display.set_caption(APP_TITLE)
 
@@ -35,6 +43,8 @@ class Grid():
         self.selectedNode = None
         self.drivers = []
         self.passengers = []
+
+        self.highlightedDriver = None
 
     # Initialize grid with empty nodes
     def createGrid(self):
@@ -69,22 +79,36 @@ class Grid():
             selectedNode.addOccupant(newDriver)
     
     # Initialize n passengers in grid
-    def addRandomPassengers(self, n, d):
+    def addPassengers(self, n):
         for i in range(n):
             selectedNode = self.getRandomTraversableNode()
 
             newPassenger = Passenger(selectedNode.getGridPos())
 
-            for j in range(d):
-                randomNode = self.getRandomTraversableNode()
-                randomNode.setDebug(True)
-                newPassenger.addDestination(randomNode.getGridPos())
+            numDestinations = random.randint(1, MAX_PASSENGER_DESTINATIONS)
 
-            print(f"Passenger is at {newPassenger.getPos()}")
-            print(f"Passenger Destinations are {newPassenger.getDestinations()}")
+            for j in range(numDestinations):
+                randomNode = self.getRandomTraversableNode()
+                #randomNode.setDebug(True)
+                newPassenger.addDestination(randomNode.getGridPos())
 
             self.passengers.append(newPassenger)
             selectedNode.addOccupant(newPassenger)
+    
+    def addRandomPassenger(self, maximumDestinations):
+        selectedNode = self.getRandomTraversableNode()
+
+        newPassenger = Passenger(selectedNode.getGridPos())
+
+        numDestinations = random.randint(1, maximumDestinations)
+
+        for j in range(numDestinations):
+            randomNode = self.getRandomTraversableNode()
+            #randomNode.setDebug(True)
+            newPassenger.addDestination(randomNode.getGridPos())
+
+        self.passengers.append(newPassenger)
+        selectedNode.addOccupant(newPassenger)
     
     # Get a random traversable node from grid
     def getRandomTraversableNode(self):        
@@ -92,7 +116,7 @@ class Grid():
             randomRow = random.randint(0, self.gridWidth-1)
             randomColumn = random.randint(0, self.gridHeight-1)
             selectedNode = self.getNode(randomRow, randomColumn)
-            if not selectedNode.getWall():
+            if not selectedNode.getWall() and not selectedNode.containsDrivers() and not selectedNode.containsPassengers():
                 return selectedNode
     
     # Draw the grid with pygames
@@ -107,26 +131,48 @@ class Grid():
                 elif node.getWall():
                     pygame.draw.rect(self.surface, WALL_COLOR, node.getRect())
                 # If node contains drivers
-                elif any(isinstance(driver, Driver) for driver in node.getOccupants()):
+                elif node.containsDrivers():
                     pygame.draw.rect(self.surface, DRIVER_COLOR, node.getRect())
                 # If node contains passengers
-                elif any(isinstance(passenger, Passenger) for passenger in node.getOccupants()):
+                elif node.containsPassengers():
                     pygame.draw.rect(self.surface, PASSENGER_COLOR, node.getRect())
                 else:
                     pygame.draw.rect(self.surface, NODE_DEFAULT_COLOR, node.getRect(), 1)
+                
+                if self.highlightedDriver is not None:
+                    # Highlight Driver
+                    currentPosition = self.highlightedDriver.getPos()
+                    posX, posY = currentPosition
+                    highlightedDriver = self.getNode(posX, posY)
+                    pygame.draw.rect(self.surface, DRIVER_HIGHLIGHTED_COLOR, highlightedDriver.getRect())
+
+                    # Highlight Destination
+                    currentDestination = self.highlightedDriver.getDestination()
+                    if currentDestination is not None:
+                        desX, desY = currentDestination
+                        highlightedDestination = self.getNode(desX, desY)
+                        pygame.draw.rect(self.surface, DESTINATION_HIGHLIGHTED_COLOR, highlightedDestination.getRect())
+
         pygame.display.update()
 
     def getGridEvent(self):
         return pygame.event.get()
 
+    def setHighlightedDriver(self, node):
+        if node.containsDrivers():
+            self.highlightedDriver = node.getDriver()
+
+    def clearHighlightedDriver(self):
+        self.highlightedDriver = None
+
     def handleMousePressedEvent(self):
-        # If left mouse button was pressed
+        # If left mouse button was pressed, highlight driver in selected node
         if pygame.mouse.get_pressed()[0]:
             selectedNode = self.getMousePosNode()
-            selectedNode.makeWall()
-        # If right mouse button was pressed
+            self.setHighlightedDriver(selectedNode)
+        # If right mouse button was pressed, clear highlighted driver
         elif pygame.mouse.get_pressed()[2]:
-            pass
+            self.clearHighlightedDriver()
     
     def handleButtonPressedEvent(self, event):
         # If user pressed a button
@@ -135,6 +181,15 @@ class Grid():
             if event.key == pygame.K_d:
                 selectedNode = self.getMousePosNode()
                 selectedNode.resetNode()
+            # If user pressed Space key, add random passenger
+            elif event.key == pygame.K_SPACE:
+                self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
+    
+    def handlePassengers(self):
+        if len(self.passengers) < MAX_PASSENGERS:
+            spawnChance = random.randint(1, 100)
+            if spawnChance <= PASSENGER_SPAWN_RATE:
+                self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
     
     def handleDrivers(self):
         for driver in self.drivers:
@@ -197,7 +252,7 @@ class Grid():
                 path = findPathAStar(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, driver.getPos(), destination.getGridPos())
                 driver.setPath(path)
             
-            time.sleep(0.25)
+            time.sleep(DRIVER_SPEED)
     
     # Get node from mouse position
     def getMousePosNode(self):
