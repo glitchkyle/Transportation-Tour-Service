@@ -10,6 +10,8 @@ from PathFinding import findPathAStar
 
 APP_TITLE = "Transportation/Touring Service"
 
+DESTINATION_SAVE_GRID = "savedGrid.txt"
+
 DRIVER_SPEED = 0.1                  # Speed of Drivers
 MAX_PASSENGERS = 7                  # Maximum possible passengers within the grid at a time
 PASSENGER_SPAWN_RATE = 5            # Chances of a passenger spawning at a given moment
@@ -68,6 +70,19 @@ class Grid():
         else:
             raise Exception("Given import file does not exist")
     
+    def saveGrid(self, desFile):
+        walls = ""
+        # Get all walled nodes
+        for i in range(self.gridHeight):
+            for j in range(self.gridWidth):
+                currentNode = self.getNode(i, j)
+                if currentNode.isWall():
+                    wallPos = str(i) + ' ' + str(j) + '\n'
+                    walls += wallPos
+        # Write all walled nodes to destination file
+        with open(desFile, 'w') as df:
+            df.write(walls)
+    
     # Initialize n drivers in grid
     def addDrivers(self, n):
         for i in range(n):
@@ -116,7 +131,7 @@ class Grid():
             randomRow = random.randint(0, self.gridWidth-1)
             randomColumn = random.randint(0, self.gridHeight-1)
             selectedNode = self.getNode(randomRow, randomColumn)
-            if not selectedNode.getWall() and not selectedNode.containsDrivers() and not selectedNode.containsPassengers():
+            if not selectedNode.isWall() and not selectedNode.containsDrivers() and not selectedNode.containsPassengers():
                 return selectedNode
     
     # Draw the grid with pygames
@@ -128,7 +143,7 @@ class Grid():
                 if node.getDebug():
                     pygame.draw.rect(self.surface, DEBUG_COLOR, node.getRect())
                 # If node is wall
-                elif node.getWall():
+                elif node.isWall():
                     pygame.draw.rect(self.surface, WALL_COLOR, node.getRect())
                 # If node contains drivers
                 elif node.containsDrivers():
@@ -170,10 +185,11 @@ class Grid():
         if pygame.mouse.get_pressed()[0]:
             selectedNode = self.getMousePosNode()
             self.setHighlightedDriver(selectedNode)
-        # If right mouse button was pressed, clear highlighted driver
+        # If right mouse button was pressed, create wall
         elif pygame.mouse.get_pressed()[2]:
-            self.clearHighlightedDriver()
-    
+            selectedNode = self.getMousePosNode()
+            selectedNode.makeWall()
+        
     def handleButtonPressedEvent(self, event):
         # If user pressed a button
         if event.type == pygame.KEYDOWN:
@@ -183,7 +199,16 @@ class Grid():
                 selectedNode.resetNode()
             # If user pressed Space key, add random passenger
             elif event.key == pygame.K_SPACE:
-                self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
+                if len(self.passengers) < MAX_PASSENGERS:
+                    self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
+            # If user pressed C key, clear highlighted driver
+            elif event.key == pygame.K_c:
+                self.clearHighlightedDriver()
+            elif event.key == pygame.K_s:
+                self.saveGrid(DESTINATION_SAVE_GRID)
+            elif event.key == pygame.K_p:
+                pygame.quit()
+                raise Exception("Program Stopped")
     
     def handlePassengers(self):
         if len(self.passengers) < MAX_PASSENGERS:
@@ -229,7 +254,7 @@ class Grid():
                 currentNode = self.getNode(currentPos[0], currentPos[1])
                 nextNode = self.getNode(nextPos[0], nextPos[1])
 
-                if not nextNode.getWall():
+                if not nextNode.isWall():
 
                     currentNode.removeOccupant(driver)
 

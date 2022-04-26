@@ -28,7 +28,7 @@ class Node(object):
     def getGridPos(self):
         return (math.floor(self.x / self.nodeWidth), math.floor(self.y / self.nodeHeight))
 
-    def getWall(self):
+    def isWall(self):
         return self.wall
     
     def setWall(self, state):

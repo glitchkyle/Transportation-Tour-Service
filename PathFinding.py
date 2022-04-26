@@ -62,7 +62,7 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
         for node in adjacentNodes:
             if node in closedList:
                 continue
-            if node.getWall():
+            if node.isWall():
                 continue
 
             node.setGCost(currentGCost + 10)
