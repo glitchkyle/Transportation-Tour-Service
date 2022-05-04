@@ -1,4 +1,20 @@
 def findPathAStar(gridArr, height, width, startPos, endPos):
+    """
+    Finds a path using A-star between the start position and end position in given grid
+
+    :param gridArr: Array representation of grid. Grid attribute of Grid Object.
+    :type gridArr: 2D Node Array 
+    :param height: Height of grid or number of rows
+    :type height: int
+    :param width: Width of grid or number of columns
+    :type width: int
+    :param startPos: Starting Position
+    :type startPos: tuple
+    :param endPos: Ending Position
+    :type endPos: tuple 
+    :return: Final shortest path found
+    :rtype: tuple array
+    """
     #print(f" Finding Path from {startPos} to {endPos}")
 
     finalPath = []
@@ -59,29 +75,30 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
             searchNode = gridArr[currentRow + 1][currentColumn]
             adjacentNodes.append(searchNode)
         
+        # Process all children
         for node in adjacentNodes:
+            # Skip if child has already been processed
             if node in closedList:
                 continue
+            # Skip if child is a wall 
             if node.isWall():
                 continue
-
+            
+            # Assign cost from start to current node
             node.setGCost(currentGCost + 10)
 
+            # Assign cost from current node to end node
             x1, y1 = node.getGridPos()
             x2, y2 = endPos
             heuristicDistance = calculateManhattanDistance(x1, y1, x2, y2)
             node.setHCost(heuristicDistance)
 
-            node.setParentNode(currentSearchNode)
-
-            # for openNode in openList:
-            #     if node.getGridPos() == openNode.getGridPos() and node.getGCost() > openNode.getGCost():
-            #         continue
-
-            # Check if node is in openlist and re-evaluate cost 
+            # Check if node already in openlist
             if node in openList:
-                node.setGCost(currentGCost + 10)
                 continue
+
+            # Assign parent
+            node.setParentNode(currentSearchNode)
 
             openList.append(node)
 
@@ -93,6 +110,16 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
     return finalPath
 
 def heapifyMin(nodeArr, size, i):
+    """
+    Sorts node array as a binary heap with cheapest node on top
+
+    :param nodeArr: Node array to be sorted as binary heap
+    :type nodeArr: Node Array
+    :param size: Size of overall array
+    :type size: int 
+    :param i: Index of root in subtree
+    :type i: int
+    """
 
     # Index position of arrrays as a tree
     smallest = i                # Root
@@ -110,15 +137,26 @@ def heapifyMin(nodeArr, size, i):
     # If smallest is not the current root, switch current root to smallest
     if smallest != i:
         nodeArr[smallest], nodeArr[i] = nodeArr[i], nodeArr[smallest]
-
         heapifyMin(nodeArr, size, smallest)
 
 def heapifySort(nodeArr):
+    """
+    Recursively sorts given node array until cheapest node is root
+
+    :param nodeArr: Node array to be sorted as a binary heap
+    :type nodeArr: Node Array
+    """
     startIndex = len(nodeArr) // 2 - 1
     for i in range(startIndex, -1, -1):
         heapifyMin(nodeArr, len(nodeArr), i)
 
 def findCheapestNode(lst):
+    """
+    Linearly search for the cheapest node 
+
+    :param lst: Node array to be searched
+    :type lst: Node Array
+    """
     cheapestNode = lst[0]
     cheapestVal = lst[0].getFCost()
     for node in lst:
@@ -126,6 +164,19 @@ def findCheapestNode(lst):
             cheapestNode = node
     return cheapestNode
 
-# Calculate Manhattan distance between two points (x,y)
 def calculateManhattanDistance(x1, y1, x2, y2):
+    """
+    Finds the Manhattan Distance between two points
+
+    :param x1: X position of initial point
+    :type x1: int
+    :param y1: Y position of initial point 
+    :type y1: int 
+    :param x2: X position of final point
+    :type x2: int 
+    :param y2: Y position of final point
+    :type y2: int
+    :return: Manhattan Distance of two given points
+    :rtype: int
+    """
     return abs(x2 - x1) + abs(y2 - y1)

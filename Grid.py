@@ -29,8 +29,15 @@ DESTINATION_HIGHLIGHTED_COLOR = colorDictionary['GREEN']
 pygame.display.set_caption(APP_TITLE)
 
 class Grid():
-    # Constructor specifying window size and grid size (rows and columns)
     def __init__(self, winSize, gridSize):
+        """
+        Constructor Method for Grid 
+
+        :param winSize: Window size for application
+        :type winSize: int
+        :param gridSize: Number of nodes for each row and column
+        :type gridSize: int
+        """
         self.grid = []
         self.surface = pygame.display.set_mode((winSize, winSize))
         
@@ -48,8 +55,10 @@ class Grid():
 
         self.highlightedDriver = None
 
-    # Initialize grid with empty nodes
     def createGrid(self):
+        """
+        Initializes grid nodes as empty
+        """
         for i in range(self.gridHeight):
             newRow = []
             for j in range(self.gridWidth):
@@ -57,8 +66,13 @@ class Grid():
                 newRow.append(newNode)
             self.grid.append(newRow)
 
-    # Initialize grid from file containing blocked nodes and filled nodes
     def importGrid(self, file):
+        """
+        Reads grid file containing which nodes to mark as a wall
+
+        :param file: Path to file 
+        :type file: str
+        """
         if exists(file):
             with open(file, 'r') as importFile:
                 for line in importFile:
@@ -71,6 +85,12 @@ class Grid():
             raise Exception("Given import file does not exist")
     
     def saveGrid(self, desFile):
+        """
+        Saves grid file containing which nodes to mark as a wall
+
+        :param file: Path to destination file
+        :type file: str
+        """
         walls = ""
         # Get all walled nodes
         for i in range(self.gridHeight):
@@ -83,34 +103,41 @@ class Grid():
         with open(desFile, 'w') as df:
             df.write(walls)
     
-    # Initialize n drivers in grid
-    def addDrivers(self, n):
-        for i in range(n):
+    def addDrivers(self, num):
+        """
+        Initializes driver AIs
+
+        :param num: Number of drivers to initialize
+        :type num: int
+        """
+        for i in range(num):
             selectedNode = self.getRandomTraversableNode()
 
             newDriver = Driver(selectedNode.getGridPos())
 
             self.drivers.append(newDriver)
             selectedNode.addOccupant(newDriver)
+
+            if self.highlightedDriver is None:
+                self.highlightedDriver = newDriver
     
-    # Initialize n passengers in grid
-    def addPassengers(self, n):
-        for i in range(n):
-            selectedNode = self.getRandomTraversableNode()
+    def addPassengers(self, num):
+        """
+        Initialize starting passengers
 
-            newPassenger = Passenger(selectedNode.getGridPos())
-
-            numDestinations = random.randint(1, MAX_PASSENGER_DESTINATIONS)
-
-            for j in range(numDestinations):
-                randomNode = self.getRandomTraversableNode()
-                #randomNode.setDebug(True)
-                newPassenger.addDestination(randomNode.getGridPos())
-
-            self.passengers.append(newPassenger)
-            selectedNode.addOccupant(newPassenger)
+        :param num: Number of passengers to initialize
+        :type num: int
+        """
+        for i in range(num):
+            self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
     
     def addRandomPassenger(self, maximumDestinations):
+        """
+        Create a random passenger with random destination or destinations
+
+        :param maximumDestinations: Number of destinations for passenger 
+        :type maximumDestinations: int
+        """
         selectedNode = self.getRandomTraversableNode()
 
         newPassenger = Passenger(selectedNode.getGridPos())
@@ -125,8 +152,13 @@ class Grid():
         self.passengers.append(newPassenger)
         selectedNode.addOccupant(newPassenger)
     
-    # Get a random traversable node from grid
     def getRandomTraversableNode(self):        
+        """
+        Gets a random traversable grid node
+
+        :return: Traversable node within grid
+        :rtype: Node
+        """
         while True:
             randomRow = random.randint(0, self.gridWidth-1)
             randomColumn = random.randint(0, self.gridHeight-1)
@@ -134,8 +166,10 @@ class Grid():
             if not selectedNode.isWall() and not selectedNode.containsDrivers() and not selectedNode.containsPassengers():
                 return selectedNode
     
-    # Draw the grid with pygames
     def drawGrid(self):
+        """
+        Draws or updates grid with certain specified colors for each node
+        """
         self.surface.fill(SURFACE_BACKGROUND)
         for row in self.grid:
             for node in row:
@@ -170,17 +204,26 @@ class Grid():
 
         pygame.display.update()
 
-    def getGridEvent(self):
-        return pygame.event.get()
-
     def setHighlightedDriver(self, node):
+        """
+        Highlights driver for observation purposes
+
+        :param node: Selected node from click
+        :type node: Node
+        """
         if node.containsDrivers():
             self.highlightedDriver = node.getDriver()
 
     def clearHighlightedDriver(self):
+        """
+        Clears highlighted driver
+        """
         self.highlightedDriver = None
 
     def handleMousePressedEvent(self):
+        """
+        Process all mouse clicks
+        """
         # If left mouse button was pressed, highlight driver in selected node
         if pygame.mouse.get_pressed()[0]:
             selectedNode = self.getMousePosNode()
@@ -190,33 +233,47 @@ class Grid():
             selectedNode = self.getMousePosNode()
             selectedNode.makeWall()
         
-    def handleButtonPressedEvent(self, event):
+    def handleButtonPressedEvent(self):
+        """
+        Process all button clicks
+        """
         # If user pressed a button
-        if event.type == pygame.KEYDOWN:
-            # If user pressed D key, reset node
-            if event.key == pygame.K_d:
-                selectedNode = self.getMousePosNode()
-                selectedNode.resetNode()
-            # If user pressed Space key, add random passenger
-            elif event.key == pygame.K_SPACE:
-                if len(self.passengers) < MAX_PASSENGERS:
-                    self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
-            # If user pressed C key, clear highlighted driver
-            elif event.key == pygame.K_c:
-                self.clearHighlightedDriver()
-            elif event.key == pygame.K_s:
-                self.saveGrid(DESTINATION_SAVE_GRID)
-            elif event.key == pygame.K_p:
-                pygame.quit()
-                raise Exception("Program Stopped")
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                # If user pressed D key, reset node
+                if event.key == pygame.K_d:
+                    selectedNode = self.getMousePosNode()
+                    selectedNode.resetNode()
+                # If user pressed Space key, add random passenger
+                elif event.key == pygame.K_SPACE:
+                    if len(self.passengers) < MAX_PASSENGERS:
+                        self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
+                # If user pressed C key, clear highlighted driver
+                elif event.key == pygame.K_c:
+                    self.clearHighlightedDriver()
+                elif event.key == pygame.K_s:
+                    self.saveGrid(DESTINATION_SAVE_GRID)
+                elif event.key == pygame.K_p:
+                    pygame.quit()
+                    raise Exception("Program Stopped")
     
     def handlePassengers(self):
+        """
+        Spawn passengers at a given chance and rate
+        """
         if len(self.passengers) < MAX_PASSENGERS:
             spawnChance = random.randint(1, 100)
             if spawnChance <= PASSENGER_SPAWN_RATE:
                 self.addRandomPassenger(MAX_PASSENGER_DESTINATIONS)
     
     def handleDrivers(self):
+        """
+        Process Driver Logic
+        - Assign passenger to driver
+        - Picking up passenger
+        - Driver traverse to next node in path
+        - Assigning random path if driver has no passenger
+        """
         for driver in self.drivers:
             # Assign passenger if driver has no passenger
             if len(self.passengers) > 0 and driver.getPassenger() is None:
@@ -279,18 +336,28 @@ class Grid():
             
             time.sleep(DRIVER_SPEED)
     
-    # Get node from mouse position
     def getMousePosNode(self):
-        mousePosX, mousePosY = self.getMousePos()
+        """
+        Gets the grid node at clicked position
+
+        :return: Node at clicked position
+        :rtype: Node
+        """
+        mousePosX, mousePosY = pygame.mouse.get_pos()
         x = math.floor(mousePosX / self.gap)
         y = math.floor(mousePosY / self.gap)
         return self.getNode(x, y)
 
-    # Get current mouse position
-    def getMousePos(self):
-        return pygame.mouse.get_pos()
-
-    # Get node using row and column as indices
     def getNode(self, row, column):
+        """
+        Gets the grid node at a certain row and column
+
+        :param row: Row position of node
+        :type row: int
+        :param column: Column position of node
+        :type column: int
+        :return: Node at given position
+        :rtype: Node
+        """
         if (row < self.gridHeight and row >= 0) and (column < self.gridWidth and column >= 0): 
             return self.grid[row][column]
