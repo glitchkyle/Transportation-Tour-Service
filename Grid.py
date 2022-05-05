@@ -134,6 +134,7 @@ class Grid():
     def addRandomPassenger(self, maximumDestinations):
         """
         Create a random passenger with random destination or destinations
+        Sorts the destinations by distance from current position
 
         :param maximumDestinations: Number of destinations for passenger 
         :type maximumDestinations: int
@@ -148,10 +149,8 @@ class Grid():
             randomNode = self.getRandomTraversableNode()
             #randomNode.setDebug(True)
             newPassenger.addDestination(randomNode.getGridPos())
-        
-        destinationList = newPassenger.getDestinations()
-        sortedDestinationQueue = sortDestinationDijkstra(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, newPassenger.getPos(), destinationList)
-        newPassenger.setDestinations(sortedDestinationQueue)
+
+        newPassenger.sortDestinations(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth)
 
         self.passengers.append(newPassenger)
         selectedNode.addOccupant(newPassenger)
@@ -294,6 +293,7 @@ class Grid():
                     # Check if passenger reached last destination
                     if len(currentPassenger.getDestinations()) > 0 and driver.getPathLength() == 0:
                         # Go to next destination desired by passenger
+                        currentPassenger.sortDestinations(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth)
                         nextDestination = currentPassenger.getNearestDestination()
                         print(f"Passenger now being driven to {nextDestination}!")
                         path = findPathAStar(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, driver.getPos(), nextDestination)

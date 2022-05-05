@@ -54,4 +54,9 @@ class Passenger(object):
         self.destinations.remove(currentDestination)
         return currentDestination
     
+    def sortDestinations(self, gridArr, height, width):
+        if len(self.destinations) > 1:
+            sortedDestinationQueue = sortDestinationDijkstra(gridArr, height, width, self.currentPos, self.destinations)
+            self.destinations = sortedDestinationQueue
+    
     
