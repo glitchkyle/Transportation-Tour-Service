@@ -1,5 +1,4 @@
-from PathFinding import calculateManhattanDistance
-import math
+from PathFinding import sortDestinationDijkstra
 
 class Passenger(object):
     def __init__(self, pos):
@@ -29,6 +28,9 @@ class Passenger(object):
     def setPickedUp(self, status):
         self.pickedUp = status
     
+    def setDestinations(self, lst):
+        self.destinations = lst
+    
     # Methods
     
     def addDestination(self, newDest):
@@ -41,28 +43,15 @@ class Passenger(object):
         if newDest not in self.destinations:
             self.destinations.append(newDest)
     
-    def getNearestDestination(self, driverCurrentPos):
+    def getNearestDestination(self):
         """
-        Finds the closest destination from current position 
+        Returns the nearest destination from the sorted queue of destinations
         
-        :param driverCurrentPos: Position of driver and passenger
-        :type driverCurrentPos: tuple
         :return: Nearest destination
         :rtype: tuple
         """
-        cheapestDestination = self.destinations[0]
-        x1, y1 = driverCurrentPos
-
-        x2, y2 = cheapestDestination
-        minValDestination = calculateManhattanDistance(x1, y1, x2, y2)
-
-        for pos in self.destinations:
-            x2, y2 = pos
-            if calculateManhattanDistance(x1, y1, x2, y2) < minValDestination:
-                minValDestination = calculateManhattanDistance(x1, y1, x2, y2)
-                cheapestDestination = pos
-        
-        self.destinations.remove(cheapestDestination)
-        return cheapestDestination
+        currentDestination = self.destinations[0]
+        self.destinations.remove(currentDestination)
+        return currentDestination
     
     

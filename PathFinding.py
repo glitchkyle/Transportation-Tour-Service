@@ -109,6 +109,113 @@ def findPathAStar(gridArr, height, width, startPos, endPos):
 
     return finalPath
 
+def sortDestinationDijkstra(gridArr, height, width, startPos, endList):
+    """
+    Sorts a given list of positions based off their distance 
+    from the starting position using Dijkstra's Algorithm
+
+    :param gridArr: Array representation of grid. Grid attribute of Grid Object.
+    :type gridArr: 2D Node Array 
+    :param height: Height of grid or number of rows
+    :type height: int
+    :param width: Width of grid or number of columns
+    :type width: int
+    :param startPos: Starting Position
+    :type startPos: tuple
+    :param endList: Destination Positions to be sorted by distance
+    :type endList: tuple 
+    :return: Final shortest path found
+    :rtype: tuple array
+    """
+    targetList = endList
+
+    finalQueue = []
+    openList = []
+    closedList = []
+
+    startNode = gridArr[startPos[0]][startPos[1]]
+    startNode.setGCost(0)
+    startNode.setHCost(0)
+
+    openList.append(startNode)
+
+    while len(openList) > 0:
+
+        # Remove root, cheapest node, from binary heap
+        currentSearchNode = openList[0]
+
+        # Find cheapest node using linear search
+        # currentSearchNode = findCheapestNode(openList)
+
+        openList.remove(currentSearchNode)
+
+        # Add node to closed list
+        closedList.append(currentSearchNode)
+
+        # If node is a destination, add to queue
+        if currentSearchNode.getGridPos() in targetList:
+            finalQueue.append(currentSearchNode.getGridPos())
+            targetList.remove(currentSearchNode.getGridPos())
+
+        # Check if all destinations searched 
+        if len(targetList) == 0:
+            break
+
+        currentGCost = currentSearchNode.getGCost()
+        adjacentNodes = []
+        currentRow, currentColumn = currentSearchNode.getGridPos()
+
+        # Get all adjacent nodes to current node being searched
+
+        # Top Center (currentRow - 1, currentColumn)
+        if (currentRow - 1 >= 0 and currentRow - 1 < height) and (currentColumn >= 0 and currentColumn < width):
+            searchNode = gridArr[currentRow - 1][currentColumn]
+            adjacentNodes.append(searchNode)
+
+        # Middle Left (currentRow, currentColumn - 1)
+        if (currentRow >= 0 and currentRow < height) and (currentColumn - 1 >= 0 and currentColumn - 1 < width):
+            searchNode = gridArr[currentRow][currentColumn - 1]
+            adjacentNodes.append(searchNode)
+
+        # Middle Right (currentRow, currentColumn + 1)
+        if (currentRow >= 0 and currentRow < height) and (currentColumn + 1 >= 0 and currentColumn + 1 < width):
+            searchNode = gridArr[currentRow][currentColumn + 1]
+            adjacentNodes.append(searchNode)
+
+        # Bottom Center (currentRow + 1, currentColumn)
+        if (currentRow + 1 >= 0 and currentRow + 1 < height) and (currentColumn >= 0 and currentColumn < width):
+            searchNode = gridArr[currentRow + 1][currentColumn]
+            adjacentNodes.append(searchNode)
+        
+        # Process all children
+        for node in adjacentNodes:
+            # Skip if child has already been processed
+            if node in closedList:
+                continue
+            # Skip if child is a wall 
+            if node.isWall():
+                continue
+            
+            # Assign cost
+            node.setGCost(currentGCost + 10)
+            node.setHCost(0)
+
+            # Check if node already in openlist
+            if node in openList:
+                continue
+
+            # Assign parent
+            node.setParentNode(currentSearchNode)
+
+            openList.append(node)
+
+            # print(f"Node is at: {node.getGridPos()}. Node costs {node.getFCost()}")
+        
+        # Sort open list to make cheapest node on top
+        heapifySort(openList)
+    
+    return finalQueue
+
 def heapifyMin(nodeArr, size, i):
     """
     Sorts node array as a binary heap with cheapest node on top
