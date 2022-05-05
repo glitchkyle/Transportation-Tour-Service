@@ -4,7 +4,7 @@ from Color import colorDictionary
 from Node import Node
 from Driver import Driver
 from Passenger import Passenger 
-from PathFinding import findPathAStar, sortDestinationDijkstra
+from PathFinding import findPathAStar
 
 # Initialize Constants
 
@@ -293,7 +293,6 @@ class Grid():
                     # Check if passenger reached last destination
                     if len(currentPassenger.getDestinations()) > 0 and driver.getPathLength() == 0:
                         # Go to next destination desired by passenger
-                        currentPassenger.sortDestinations(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth)
                         nextDestination = currentPassenger.getNearestDestination()
                         print(f"Passenger now being driven to {nextDestination}!")
                         path = findPathAStar(copy.deepcopy(self.grid), self.gridHeight, self.gridWidth, driver.getPos(), nextDestination)
